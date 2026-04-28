@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Land of Returning Songs</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="game">
+  <div id="charSelectModal" class="modal-overlay">
+    <div class="character-select">
+      <h2>🌸 The Land of Returning Songs 🌳</h2>
+      <p class="intro-text">
+        The flowers are losing their voices. The trees are forgetting their rhythms.<br>
+        The Festival Song has broken into pieces, and the land needs someone who listens.<br><br>
+        Choose your path into this living story...
+      </p>
+      <div class="character-options">
+        <div class="character-card" data-path="rhythm" onclick="selectPath('rhythm')">
+          <div class="char-icon">🥁</div>
+          <h3>Rhythm Walker</h3>
+          <p>You hear the beat in everything. Trees speak through movement and pattern.</p>
+        </div>
+        <div class="character-card" data-path="bloom" onclick="selectPath('bloom')">
+          <div class="char-icon">🌺</div>
+          <h3>Bloom Listener</h3>
+          <p>You understand what is felt but not said. Flowers trust you with secrets.</p>
+        </div>
+        <div class="character-card" data-path="seed" onclick="selectPath('seed')">
+          <div class="char-icon">🌰</div>
+          <h3>Seed Scholar</h3>
+          <p>You read stories in roots and rings. Ancient symbols are your language.</p>
+        </div>
+      </div>
+      <button id="startBtn" class="start-btn" onclick="startGame()" disabled>Enter the Land</button>
+    </div>
+  </div>
+
+  <div class="game-container" id="gameContainer" style="display:none;">
+    <header class="game-header">
+      <h1>The Land of Returning Songs</h1>
+      <p class="subtitle">A storybook adventure where flowers talk, trees dance, and every clue matters</p>
+    </header>
+
+    <div class="artifact-banner" id="artifactBanner">
+      <div class="artifact-counter">
+        <span>🏆 Scene Secrets:</span>
+        <span class="artifact-scene-count" id="sceneArtifactCount">0/0</span>
+        <span class="artifact-global-count" id="globalArtifactCount">0/0</span>
+      </div>
+      <div class="artifact-list-mini" id="sceneArtifactDots"></div>
+      <div class="artifact-hint" id="artifactHint">Explore carefully — some secrets need items from other places</div>
+    </div>
+
+    <main class="main-panel">
+      <div class="scene-image-container" id="sceneImageContainer">
+        <div class="scene-image-placeholder" id="scenePlaceholder">🌸</div>
+        <img class="scene-image" id="sceneImage" style="display:none;" alt="Scene illustration">
+        <button class="generate-image-btn" id="genImageBtn" onclick="generateSceneImage()">
+          <span>✨</span> Paint This Scene
+        </button>
+      </div>
+
+      <div class="story-content" id="storyContent"></div>
+
+      <div class="command-area">
+        <div class="command-input-wrapper">
+          <input type="text" class="command-input" id="commandInput" 
+                 placeholder="What do you do? (try: look, talk, take, go, listen, examine...)"
+                 onkeypress="handleKeyPress(event)" autocomplete="off">
+          <button class="command-btn" onclick="processCommand()">Sing Your Action</button>
+        </div>
+        <div class="quick-commands" id="quickCommands"></div>
+      </div>
+    </main>
+
+    <aside class="side-panel">
+      <div class="panel-section">
+        <div class="commentary-toggle">
+          <span>🎙️ Voice Commentary</span>
+          <div class="toggle-switch" id="voiceToggle" onclick="toggleVoice()"></div>
+        </div>
+        <div class="commentary-toggle">
+          <span>🖼️ Auto-Generate Images</span>
+          <div class="toggle-switch active" id="imageToggle" onclick="toggleImages()"></div>
+        </div>
+        <button class="voice-btn" id="voiceBtn" onclick="speakCurrentScene()">
+          <span>🔊</span> Read Aloud
+        </button>
+      </div>
+
+      <div class="panel-section">
+        <h3>🎒 Your Pack</h3>
+        <ul class="inventory-list" id="inventoryList">
+          <li style="opacity:0.5; font-style:italic;">Your pack is empty...</li>
+        </ul>
+      </div>
+
+      <div class="panel-section">
+        <h3>🔍 Clue Journal</h3>
+        <ul class="clue-list" id="clueList">
+          <li style="opacity:0.5; font-style:italic;">No clues discovered yet...</li>
+        </ul>
+      </div>
+
+      <div class="panel-section">
+        <h3>💚 Friendships</h3>
+        <div class="trust-meter">
+          <div class="trust-item">
+            <span class="trust-label">Flowers</span>
+            <div class="trust-bar-bg"><div class="trust-bar-fill trust-flowers" id="trustFlowers" style="width:20%"></div></div>
+          </div>
+          <div class="trust-item">
+            <span class="trust-label">Trees</span>
+            <div class="trust-bar-bg"><div class="trust-bar-fill trust-trees" id="trustTrees" style="width:20%"></div></div>
+          </div>
+          <div class="trust-item">
+            <span class="trust-label">Creatures</span>
+            <div class="trust-bar-bg"><div class="trust-bar-fill trust-animals" id="trustAnimals" style="width:10%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h3>🗺️ Known Lands</h3>
+        <div class="map-container" id="mapContainer">
+          <div class="map-region discovered current" id="map-meadow" style="top:70%;left:40%;">Whispering<br>Meadow</div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h3>🎵 Song Fragments</h3>
+        <div id="songFragments" style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span style="opacity:0.3;font-size:24px;">🎶</span>
+          <span style="opacity:0.3;font-size:24px;">🎵</span>
+          <span style="opacity:0.3;font-size:24px;">🎼</span>
+          <span style="opacity:0.3;font-size:24px;">🎤</span>
+          <span style="opacity:0.3;font-size:24px;">🎧</span>
+          <span style="opacity:0.3;font-size:24px;">🎹</span>
+        </div>
+        <p style="font-size:0.8rem;color:var(--text-light);margin-top:8px;">Find all 6 pieces to restore the Festival Song</p>
+      </div>
+
+      <div class="panel-section">
+        <h3>🏆 Total Secrets</h3>
+        <div id="totalArtifactsDisplay" style="font-family:'Cinzel',serif;text-align:center;padding:10px;">
+          <span style="font-size:2rem;">✨</span>
+          <p style="font-size:0.9rem;color:var(--text-light);margin-top:5px;">Secrets found across all lands</p>
+        </div>
+            <div class="panel-section">
+        <h3>🎙️ Storyteller Voice</h3>
+        <select id="voiceSelect" style="width:100%;padding:8px;border-radius:8px;border:2px solid var(--meadow-light);font-family:'Crimson Text',serif;font-size:0.9rem;background:var(--bg);color:var(--text);cursor:pointer;">
+          <option value="">Default Voice</option>
+        </select>
+        <p style="font-size:0.75rem;color:var(--text-light);margin-top:6px;">On iPhone: go to Settings > Accessibility > Spoken Content > Voices to add more voices</p>
+      </div>
+</div>
+    </aside>
+  </div>
+</div>
+
+<script src="scenes.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
